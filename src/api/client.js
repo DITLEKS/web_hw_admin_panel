@@ -47,9 +47,21 @@ api.interceptors.response.use(
       isRefreshing = true
 
       try {
-        const { data } = await api.post('/auth/refresh')
+        const refreshToken = localStorage.getItem('refresh_token')
+        if (!refreshToken) {
+          processQueue(new Error('no_refresh_token'), null)
+          localStorage.removeItem('access_token')
+          localStorage.removeItem('user')
+          localStorage.removeItem('refresh_token')
+          window.location.href = '/login'
+          return Promise.reject(new Error('no_refresh_token'))
+        }
+
+        const { data } = await api.post('/auth/refresh', { refresh_token: refreshToken })
         const newToken = data.data.access_token
         localStorage.setItem('access_token', newToken)
+        // update refresh_token if backend returned a new one
+        if (data.data.refresh_token) localStorage.setItem('refresh_token', data.data.refresh_token)
         processQueue(null, newToken)
         original.headers.Authorization = `Bearer ${newToken}`
         return api(original)
@@ -57,6 +69,7 @@ api.interceptors.response.use(
         processQueue(refreshError, null)
         localStorage.removeItem('access_token')
         localStorage.removeItem('user')
+        localStorage.removeItem('refresh_token')
         window.location.href = '/login'
         return Promise.reject(refreshError)
       } finally {

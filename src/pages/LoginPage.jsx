@@ -20,8 +20,9 @@ export default function LoginPage() {
       setAuth(data.data.user, data.data.access_token)
       navigate('/dashboard')
     } catch (err) {
-      const d = err.response?.data?.detail
-      setError(typeof d === 'object' ? d?.message : d || 'Ошибка входа')
+      const resp = err.response?.data
+      const message = resp?.message || resp?.error || (typeof resp?.detail === 'string' ? resp.detail : resp?.detail?.message) || 'Ошибка входа'
+      setError(message)
     } finally { setLoading(false) }
   }
 

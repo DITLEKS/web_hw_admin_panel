@@ -74,8 +74,13 @@ export default function ProductFormPage() {
       }
       navigate('/products')
     } catch (err) {
-      const d = err.response?.data?.detail
-      setSaveError(typeof d === 'string' ? d : d?.message || 'Ошибка при сохранении')
+      const d = err.response?.data
+      const message =
+        d?.message ||
+        d?.details?.[0] ||
+        d?.detail ||
+        'Ошибка при сохранении'
+      setSaveError(typeof message === 'string' ? message : 'Ошибка при сохранении')
     } finally {
       setSaving(false)
     }

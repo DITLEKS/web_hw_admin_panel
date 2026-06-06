@@ -93,14 +93,14 @@ export default function ProductsPage() {
       </div>
 
       <div className="card">
-        <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
-          <div style={{ position: 'relative', flex: 1 }}>
+        <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+          <div className="search-field" style={{ position: 'relative', flex: '1 1 420px', minWidth: 320 }}>
             <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text2)' }} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Поиск по названию или SKU..."
-              style={{ paddingLeft: 32 }}
+              style={{ paddingLeft: 36, width: '100%' }}
             />
           </div>
           <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ width: 140 }}>

@@ -90,6 +90,23 @@ tr:hover td { background: var(--surface2); }
 .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
 .form-label { font-size: 13px; font-weight: 500; color: var(--text2); }
 
+.search-field {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+.search-field input {
+  padding-left: 34px;
+}
+.search-field svg {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text2);
+  pointer-events: none;
+}
+
 .pagination {
   display: flex; align-items: center; gap: 4px;
   margin-top: 20px; justify-content: flex-end;

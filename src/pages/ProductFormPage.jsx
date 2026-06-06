@@ -19,6 +19,7 @@ const STATUS_OPTIONS = [
 const EMPTY_FORM = {
   sku: '', category_id: 1, name: '', description: '',
   price: '', old_price: '', stock_quantity: 0, status: 'active',
+  primary_image: '',
 }
 
 export default function ProductFormPage() {
@@ -26,11 +27,12 @@ export default function ProductFormPage() {
   const isEdit   = !!sku && sku !== 'new'
   const navigate = useNavigate()
 
-  const [form,      setForm]     = useState(EMPTY_FORM)
-  const [loading,   setLoading]  = useState(isEdit)
-  const [loadError, setLoadError]= useState('')
-  const [saving,    setSaving]   = useState(false)
-  const [saveError, setSaveError]= useState('')
+  const [form,        setForm]       = useState(EMPTY_FORM)
+  const [previewImage,setPreviewImage]= useState('')
+  const [loading,     setLoading]    = useState(isEdit)
+  const [loadError,   setLoadError]  = useState('')
+  const [saving,      setSaving]     = useState(false)
+  const [saveError,   setSaveError]  = useState('')
 
   useEffect(() => {
     if (!isEdit) return
@@ -46,13 +48,28 @@ export default function ProductFormPage() {
           old_price:      p.old_price || '',
           stock_quantity: p.stock_quantity,
           status:         p.status,
+          primary_image:  p.primary_image || '',
         })
+        setPreviewImage(p.primary_image || '')
       })
       .catch(() => setLoadError('Не удалось загрузить данные товара'))
       .finally(() => setLoading(false))
   }, [sku, isEdit])
 
   const setField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }))
+
+  const handleFileChange = (file) => {
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result
+      if (typeof result === 'string') {
+        setField('primary_image', result)
+        setPreviewImage(result)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -64,6 +81,7 @@ export default function ProductFormPage() {
         price:          parseFloat(form.price),
         old_price:      form.old_price ? parseFloat(form.old_price) : null,
         stock_quantity: parseInt(form.stock_quantity, 10),
+        ...(form.primary_image ? { primary_image: form.primary_image } : {}),
       }
       if (!isEdit) {
         await createProduct(body)
@@ -143,6 +161,26 @@ export default function ProductFormPage() {
             <div className="form-group">
               <label className="form-label" htmlFor="description">Описание</label>
               <textarea id="description" value={form.description} onChange={(e) => setField('description', e.target.value)} rows={4} />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" htmlFor="primary_image">Фото товара</label>
+              <input
+                id="primary_image"
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileChange(e.target.files?.[0])}
+              />
+              {previewImage && (
+                <div style={{ marginTop: 8 }}>
+                  <div style={{ color: 'var(--text2)', fontSize: 12, marginBottom: 6 }}>Превью</div>
+                  <img
+                    src={previewImage}
+                    alt="Фото товара"
+                    style={{ width: '100%', maxWidth: 240, height: 140, objectFit: 'cover', borderRadius: 10, border: '1px solid var(--border)' }}
+                  />
+                </div>
+              )}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
